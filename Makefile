@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #Compile the code
 
 program_3: program_3.c os.c synchro.c serial.c os.h globals.h synchro.h
@@ -14,3 +15,17 @@ program: pg3.hex
 #remove build files
 clean:
 	rm -fr *.elf *.hex *.o
+=======
+CC=gcc-4.8
+CFLAGS=-O3 -g
+
+program_4: ext2.h ext2.c program4.c
+	$(CC) $(CFLAGS) $^ -o ext2reader
+
+debug: ext2.h ext2.c program4.c
+	$(CC) $(CFLAGS) -DDEBUG $^ -o $@
+
+clean:
+	rm -rf ext2reader debug
+
+>>>>>>> ba8e152ed2827ef05cfbfce0758ddfec88644207
