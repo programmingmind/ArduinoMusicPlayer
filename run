@@ -1,4 +1,0 @@
-make
-make program 
-avr-objdump -D pg3.elf > dump
-screen /dev/tty.usbmodem1411 115200
