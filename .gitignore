@@ -23,3 +23,5 @@
 *.hex
 
 .DS_STORE
+
+arduino_port
