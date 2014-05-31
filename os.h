@@ -103,6 +103,9 @@ uint8_t get_next_thread(void);
 void thread_sleep(uint16_t ticks);
 int main();
 
+void start_system_timer();
+void start_audio_pwm();
+
 //Global variables
 volatile system_t sysInfo;              //OS information
 volatile uint8_t buffer[BUFFER_SIZE];   //Buffer holding produced items

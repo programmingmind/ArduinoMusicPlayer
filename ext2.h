@@ -14,9 +14,7 @@
  #ifndef EXT2_H
  #define EXT2_H
 
-typedef unsigned int uint32_t;
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
+ #include <inttypes.h>
 
 /*
  * Special inode numbers
@@ -172,12 +170,18 @@ enum {
    EXT2_FT_MAX
 };
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+void getFile(uint8_t ndx);
 
-void printInode(char *path, uint8_t contents);
+char *getCurrentName();
 
-void ext2_init(FILE *file);
+uint32_t getCurrentPos();
+
+uint32_t getCurrentSize();
+
+void getFileChunk(uint8_t *buffer);
+
+uint8_t getNumFiles();
+
+void ext2_init();
 
 #endif

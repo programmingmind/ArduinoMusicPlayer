@@ -42,22 +42,12 @@ ISR(TIMER0_COMPA_vect) {
 
    //Get the thread id of the next thread to run
    sysInfo.threads[oldId].state = THREAD_READY;
-   sysInfo.curId = get_next_thread();
+   sysInfo.curId = 1; // get_next_thread(); always start at 0 for priority
    sysInfo.threads[sysInfo.curId].state = THREAD_RUNNING;
    sysInfo.threads[sysInfo.curId].sched_count++;
 
    context_switch(&sysInfo.threads[sysInfo.curId].tp,
     &sysInfo.threads[oldId].tp);
-}
-
-//Call this to start the system timer interrupt
-void start_system_timer() {
-   TIMSK0 |= _BV(OCIE0A);  //interrupt on compare match
-   TCCR0A |= _BV(WGM01);   //clear timer on compare match
-
-   //Generate timer interrupt every ~10 milliseconds
-   TCCR0B |= _BV(CS02) | _BV(CS00);    //prescalar /1024
-   OCR0A = 156;             //generate interrupt every 9.98 milliseconds
 }
 
 //new_tp: r25:24, old_tp: r23:r22
