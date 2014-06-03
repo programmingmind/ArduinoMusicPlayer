@@ -1,5 +1,8 @@
 #include "globals.h"
 
+#define LEN_16 6
+#define LEN_32 11
+
 /*
  * Initialize the serial port.
  */
@@ -47,163 +50,105 @@ uint8_t write_byte(uint8_t b) {
    return 1;
 }
 
-void write_int(uint32_t num) {
-   uint8_t iVal[MAX_DIGITS], ndx = MAX_DIGITS;
-
-   do {
-      iVal[--ndx] = '0' + num % 10;
-      num /= 10;
-   } while (num > 0);
-
-   while (ndx < MAX_DIGITS)
-      write_byte(iVal[ndx++]);
-}
-
-void next_line() {
-   //Restore cursor
-   write_byte(ESC);
-   write_byte('[');
-   write_byte('u');
-   //Move to next line
-   write_byte(ESC);
-   write_byte('[');
-   write_byte('B');
-}
-
-static void save_cursor() {
-   //Save cursor
-   write_byte(ESC);
-   write_byte('[');
-   write_byte('s');
-}
-
+/*
+ * Write string
+ *
+ * s string to write.
+ */
 void print_string(char *s) {
-   save_cursor();
-
-   //Output String
    while (*s)
       write_byte(*s++);
-
 }
+
 void print_int(uint16_t i) {
-   uint8_t iVal[5] = {0}, ndx = 5;
+   char data[LEN_16];
+   uint8_t pos = LEN_16 - 1;
 
-   //Store digits in array
-   do {
-      iVal[--ndx] = '0' + i % 10;
-      i /= 10;
-   } while (i > 0);
-   //Print digits
-   for (ndx = 0; ndx < 5; ndx++) {
-      if (!iVal[ndx])
-         write_byte(48);
-      else
-         write_byte(iVal[ndx]);
+   if (i == 0) {
+      write_byte('0');
+      return;
    }
-
+   
+   data[pos] = 0;
+   while (i) {
+      data[--pos] = '0' + (i % 10);
+      i /= 10;
+   }
+   print_string(data + pos);
 }
 
 void print_int32(uint32_t i) {
-   uint8_t iVal[MAX_DIGITS] = {0}, ndx = MAX_DIGITS;
-
-   //Store digits in array
-   do {
-      iVal[--ndx] = '0' + i % 10;
-      i /= 10;
-   } while (i > 0);
-   //Print digits
-   for (ndx = 0; ndx < MAX_DIGITS; ndx++) {
-      if (!iVal[ndx])
-         write_byte(48);
-      else
-         write_byte(iVal[ndx]);
+   char data[LEN_32];
+   uint8_t pos = LEN_32 - 1;
+  
+   if (i == 0) {
+      write_byte('0');
+      return;
    }
+
+   data[pos] = 0;
+   while (i) {
+      data[--pos] = '0' + (i % 10);
+      i /= 10;
+   }
+   print_string(data + pos);
 }
 
 void print_hex(uint16_t i) {
-   uint8_t iVal[4] = {0}, ndx = 4;
-   uint16_t digit;
+   char data[LEN_16];
+   uint8_t pos = LEN_16 - 1;
+   uint8_t tmp;
 
-   //Store digits in array
-   do {
-      digit = i % 16;
-      if (digit > 9)
-         iVal[--ndx] = 'A' + digit - 10;
-      else
-         iVal[--ndx] = '0' + digit;
-      i /= 16;
-   } while (i > 0);
-   //Print digits
-   write_byte('0');
-   write_byte('x');
-   for (ndx = 0; ndx < 4; ndx++) {
-      if (!iVal[ndx])
-         write_byte(48);
-      else
-         write_byte(iVal[ndx]);
+   if (i == 0) {
+      write_byte('0');
+      return;
    }
 
+   data[pos] = 0;
+   while (i) {
+      tmp = i % 16;
+      data[--pos] = (tmp < 10) ? ('0' + tmp) : ('A' + tmp - 10);
+      i /= 16;
+   }
+   print_string(data + pos);
 }
 
 void print_hex32(uint32_t i) {
-   uint8_t iVal[MAX_DIGITS], ndx = MAX_DIGITS;
-   uint16_t digit;
+   char data[LEN_32];
+   uint8_t pos = LEN_32 - 1;
+   uint8_t tmp;
 
-   //Store digits in array
-   do {
-      digit = i % 16;
-      if (digit > 9)
-         iVal[--ndx] = 'A' + digit - 10;
-      else
-         iVal[--ndx] = '0' + digit;
+   if (i == 0) {
+      write_byte('0');
+      return;
+   }
+
+   data[pos] = 0;
+   while (i) {
+      tmp = i % 16;
+      data[--pos] = (tmp < 10) ? ('0' + tmp) : ('A' + tmp - 10);
       i /= 16;
-   } while (i > 0);
-   //Print digits
-   write_byte('0');
-   write_byte('x');
-   while (ndx < MAX_DIGITS)
-      write_byte(iVal[ndx++]);
-
+   }
+   print_string(data + pos);
 }
 
 void set_cursor(uint8_t row, uint8_t col) {
-   uint8_t iVal[MAX_DIGITS], ndx = MAX_DIGITS;
-
-   write_byte(ESC);
+   write_byte(27);
    write_byte('[');
-   //Generate sequence for row
-   do {
-      iVal[--ndx] = '0' + row % 10;
-      row /= 10;
-   } while (row > 0);
-   //Print digits
-   while (ndx < MAX_DIGITS)
-      write_byte(iVal[ndx++]);
-
+   print_int(row);
    write_byte(';');
-
-   ndx = MAX_DIGITS;
-   //Generate sequence for col
-   do {
-      iVal[--ndx] = '0' + col % 10;
-      col /= 10;
-   } while (col > 0);
-   //Print digits
-   while (ndx < MAX_DIGITS)
-      write_byte(iVal[ndx++]);
-
+   print_int(col);
    write_byte('H');
+}
 
+void set_color(uint8_t color) {
+   write_byte(27);
+   write_byte('[');
+   print_int(color);
+   write_byte('m');
 }
 
 void clear_screen() {
-   //Erase Screen
-   write_byte(ESC);
-   write_byte('[');
-   write_byte('2');
-   write_byte('J');
-   //Move cursor to home
-   write_byte(ESC);
-   write_byte('[');
-   write_byte('H');
+   write_byte(27);
+   print_string("[2J");
 }
