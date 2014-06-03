@@ -21,8 +21,6 @@
 #define SdReader_h
 #include "SdInfo.h"
 
- #include <compat/deprecated.h>
-
 /**
  * Some SD card are very sensitive to the SPI bus speed for initialization.
  * Try setting SPI_INIT_SLOW nonzero if you have initialization problems.

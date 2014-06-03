@@ -230,4 +230,8 @@ union csd_t {
   csd1_t v1;
   csd2_t v2;
 };
+
+#define sbi(a, b) (a) |= _BV(b)
+#define cbi(a, b) (a) &= ~_BV(b)
+
 #endif //SdInfo_h
