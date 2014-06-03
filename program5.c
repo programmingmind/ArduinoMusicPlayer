@@ -1,9 +1,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "globals.h"
-#include "os.h"
 #include <util/delay.h>
 #include <stdlib.h>
+#include "globals.h"
+#include "os.h"
 #include "ext2.h"
 #include "SdReader.h"
 #include "synchro.h"
@@ -68,6 +68,65 @@ void printer() {
       // name = getCurrentName();
       // length = (getCurrentSize() - WAV_HEADER) / 8;
       // currentTime = (getCurrentPos() - WAV_HEADER) / 8;
+      set_cursor(0, 0);
+
+      write_byte(ESC);
+      write_byte('[');
+      write_int(YELLOW);
+      write_byte('m');
+
+      print_string("System time (s): ");
+      print_int(sysInfo.runtime);
+      next_line();
+      print_string("Interrupts/second: ");
+      print_int(sysInfo.intrSec);
+      next_line();
+      print_string("Number of Threads: ");
+      print_int(sysInfo.numThreads);
+      next_line();
+
+      for (i = 0; i < sysInfo.numThreads; i++) {
+         set_cursor(5, i * 25);
+
+         write_byte(ESC);
+         write_byte('[');
+         write_int(GREEN);
+         write_byte('m');
+
+         print_string("Thread id:    ");
+         print_int(sysInfo.threads[i].id);
+         next_line();
+         print_string("Thread PC:    ");
+         print_hex(sysInfo.threads[i].pc * 2);
+         next_line();
+         print_string("Stack usage:  ");
+         if (i == 0)
+            print_int(
+             (uint16_t)sysInfo.threads[i].stackBase - sysInfo.threads[i].tp);
+         else
+            print_int(
+             (uint16_t)sysInfo.threads[i].stackEnd - sysInfo.threads[i].tp);
+         next_line();
+         print_string("Stack size:   ");
+         print_int(sysInfo.threads[i].totSize);
+         next_line();
+         print_string("Top of stack: ");
+         print_hex(sysInfo.threads[i].tp);
+         next_line();
+         print_string("Stack base:   ");
+         print_hex(sysInfo.threads[i].stackBase);
+         next_line();
+         print_string("Stack end:    ");
+         print_hex(sysInfo.threads[i].stackEnd);
+         next_line();
+         print_string("Sched count:  ");
+         print_int(sysInfo.threads[i].sched_count / sysInfo.runtime);
+         next_line();
+         print_string("PC interrupt: ");
+         print_hex(((uint16_t)sysInfo.threads[i].intr_pcl
+          + ((uint16_t)sysInfo.threads[i].intr_pch << 8)) * 2);
+         next_line();
+      }
    }
 }
 
