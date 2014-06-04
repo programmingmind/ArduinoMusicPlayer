@@ -14,6 +14,8 @@
 
 #define WAV_HEADER 0
 
+#define SAMPLE_RATE 11000
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>

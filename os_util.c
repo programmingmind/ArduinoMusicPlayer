@@ -7,7 +7,7 @@ void start_system_timer() {
    TIMSK0 |= _BV(OCIE0A);  /* IRQ on compare.  */
    TCCR0A |= _BV(WGM01); //clear timer on compare match
 
-   //22KHz settings
+   //11KHz settings
    TCCR0B |= _BV(CS01) | _BV(CS01); //slowest prescalar /1024
    OCR0A = 180; 
 

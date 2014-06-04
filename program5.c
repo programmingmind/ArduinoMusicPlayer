@@ -48,7 +48,7 @@ void printer() {
    uint8_t input, i;
    uint16_t curr, total;
 
-   total = (getCurrentSize() >> 3) / 22100;
+   total = (getCurrentSize() >> 3) / SAMPLE_RATE;
 
    while (1) {
       if (byte_available()) {
@@ -57,11 +57,11 @@ void printer() {
          if (input == 'n') {
             currentFile = (currentFile + 1) % numFiles;
             getFile(currentFile);
-            total = (getCurrentSize() >> 3) / 22100;
+            total = (getCurrentSize() >> 3) / SAMPLE_RATE;
          } else if (input == 'p') {
             currentFile = currentFile ? currentFile - 1 : numFiles - 1;
             getFile(currentFile);
-            total = (getCurrentSize() >> 3) / 22100;
+            total = (getCurrentSize() >> 3) / SAMPLE_RATE;
          }
       }
       // show stats
@@ -126,7 +126,7 @@ void printer() {
       set_cursor(12, 0);
       print_string(getCurrentName());
 
-      curr = (getCurrentPos() >> 3) / 22100;
+      curr = (getCurrentPos() >> 3) / SAMPLE_RATE;
 
       set_cursor(13, 0);
       print_int(curr / 60);
@@ -166,13 +166,9 @@ int main(void) {
    mutex_init(&mutexes[0]);
    mutex_init(&mutexes[1]);
 
-   uint8_t i = 255;
-   while (i--)
-      buffers[1][i] = 255 - (buffers[0][i] = i);
-
    //Create threads
    create_thread(writer, NULL, 32);
-   // create_thread(reader, NULL, 256);
+   create_thread(reader, NULL, 256);
    create_thread(printer, NULL, 64);
    os_start();
    sei();
