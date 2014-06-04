@@ -16,19 +16,17 @@ mutex_t mutexes[2];
 uint8_t numFiles, currentFile;
 
 void writer() {
-   uint8_t buffer, pos;
+   uint8_t buffer = 0, pos = 0;
 
    while (1) {
-      buffer = (writeNdx>>8) & 1;
-      pos = writeNdx & 255;
-
       if (! pos) {
-         mutex_unlock(&mutexes[1 - buffer]);
+         mutex_unlock(&mutexes[buffer]);
+         buffer ^= 1;
          mutex_lock(&mutexes[buffer]);
       }
 
       OCR2B = buffers[buffer][pos];
-      writeNdx++;
+      pos++;
 
       thread_sleep(1);
    }
