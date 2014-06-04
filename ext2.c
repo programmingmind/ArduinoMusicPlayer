@@ -6,8 +6,6 @@
 #define DIN_LEN 65536
 #define TIN_LEN 16777216
 
-#define NAME_LEN 64
-
 static struct ext2_inode currentInode;
 static uint32_t currentInodeNum = 0;
 

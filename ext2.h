@@ -16,6 +16,8 @@
 
  #include <inttypes.h>
 
+ #define NAME_LEN 64
+
 /*
  * Special inode numbers
  */
