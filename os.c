@@ -16,7 +16,6 @@ ISR(TIMER0_COMPA_vect) {
    volatile uint8_t oldId = sysInfo.curId, i;
    volatile regs_interrupt *intr;
 
-   sysInfo.runtime = sysInfo.numIntr / 100;
    sysInfo.intrSec = sysInfo.numIntr++ / sysInfo.runtime;
 
    //Save interrupted PC (4 locals, 1 pad byte, 2 arguments)
@@ -42,12 +41,20 @@ ISR(TIMER0_COMPA_vect) {
 
    //Get the thread id of the next thread to run
    sysInfo.threads[oldId].state = THREAD_READY;
-   sysInfo.curId = 1; // get_next_thread(); always start at 0 for priority
+   // sysInfo.curId = 1; // get_next_thread(); always start at 0 for priority
+   sysInfo.curId = get_next_thread();
    sysInfo.threads[sysInfo.curId].state = THREAD_RUNNING;
    sysInfo.threads[sysInfo.curId].sched_count++;
 
    context_switch(&sysInfo.threads[sysInfo.curId].tp,
     &sysInfo.threads[oldId].tp);
+}
+
+//This interrupt routine is run once a second
+//The 2 interrupt routines will not interrupt each other
+ISR(TIMER1_COMPA_vect) {
+
+   sysInfo.runtime++;
 }
 
 //new_tp: r25:24, old_tp: r23:r22
@@ -152,9 +159,10 @@ void os_start(void) {
    sysInfo.threads[0].sched_count = 0;
    sysInfo.threads[0].intr_pcl = 0;
    sysInfo.threads[0].intr_pch = 0;
+   sysInfo.threads[0].totSize = 0x7FF;
 
    context_switch(&sysInfo.threads[0].tp, &sysInfo.threads[0].tp);
-   sysInfo.threads[0].totSize = 0x7FF;
+   
 }
 
 void os_init() {

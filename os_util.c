@@ -25,3 +25,12 @@ void start_audio_pwm() {
    DDRD |= _BV(PD3); //make OC2B an output
 }
 
+// //Call this to start the system timer interrupt
+// void start_system_timer() {
+//    TIMSK0 |= _BV(OCIE0A);  //interrupt on compare match
+//    TCCR0A |= _BV(WGM01);   //clear timer on compare match
+
+//    //Generate timer interrupt every ~10 milliseconds
+//    TCCR0B |= _BV(CS02) | _BV(CS00);    //prescalar /1024
+//    OCR0A = 156;             //generate interrupt every 9.98 milliseconds
+// }
