@@ -92,18 +92,9 @@ void mutex_unlock(mutex_t *m) {
 
       //If someone is waiting for it set that person to be the owner
       if (m->count > 0) {
-         intr = (regs_context_switch *)(sysInfo.threads[oldId].tp);
-         sysInfo.threads[oldId].intr_pcl = intr->pcl;
-         sysInfo.threads[oldId].intr_pch = intr->pch;
-         sysInfo.threads[oldId].state = THREAD_READY;
-
-         sysInfo.curId = mutex_dequeue(m);
+         m->owner = mutex_dequeue(m);
+         sysInfo.threads[m->owner].state = THREAD_READY;
          m->count--;
-         m->owner = sysInfo.curId;
-         sysInfo.threads[sysInfo.curId].state = THREAD_RUNNING;
-         sysInfo.threads[sysInfo.curId].sched_count++;
-         context_switch(&sysInfo.threads[sysInfo.curId].tp,
-          &sysInfo.threads[oldId].tp);
       }
       else
          m->owner = -1;   //Otherwise no owner
