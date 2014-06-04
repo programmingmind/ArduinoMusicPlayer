@@ -4,8 +4,6 @@
 #define GLOBALS_H
 
 //AVR constants
-#define ESC 0x1B
-#define MAX_DIGITS 10
 #define RED 31
 #define GREEN 32
 #define YELLOW 33

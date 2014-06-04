@@ -72,10 +72,7 @@ void printer() {
       // length = (getCurrentSize() - WAV_HEADER) / 8;
       // currentTime = (getCurrentPos() - WAV_HEADER) / 8;
 
-      write_byte(ESC);
-      write_byte('[');
-      write_byte(YELLOW);
-      write_byte('m');
+      set_color(YELLOW);
 
       set_cursor(1, 0);
       print_string("System time (s): ");
@@ -87,10 +84,7 @@ void printer() {
       print_string("Number of Threads: ");
       print_int(sysInfo.numThreads);
 
-      write_byte(ESC);
-      write_byte('[');
-      write_byte(GREEN);
-      write_byte('m');
+      set_color(GREEN);
 
       for (i = 0; i < sysInfo.numThreads; i++) {
          set_cursor(5, i * 25);
