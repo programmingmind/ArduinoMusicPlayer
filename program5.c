@@ -8,8 +8,6 @@
 #include "SdReader.h"
 #include "synchro.h"
 
-uint16_t writeNdx;
-uint8_t readNdx;
 uint8_t buffers[2][256];
 mutex_t mutexes[2];
 
@@ -33,10 +31,10 @@ void writer() {
 }
 
 void reader() {
-   uint8_t buffer;
+   uint8_t buffer = 0;
 
    while (1) {
-      buffer = readNdx++ & 1;
+      buffer ^= 1;
 
       mutex_lock(&mutexes[buffer]);
       
@@ -167,9 +165,6 @@ int main(void) {
 
    mutex_init(&mutexes[0]);
    mutex_init(&mutexes[1]);
-
-   readNdx = 0;
-   writeNdx = 0;
 
    uint8_t i = 255;
    while (i--)
