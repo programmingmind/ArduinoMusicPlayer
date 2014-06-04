@@ -6,10 +6,12 @@
 #define DIN_LEN 65536
 #define TIN_LEN 16777216
 
+#define NAME_LEN 64
+
 static struct ext2_inode currentInode;
 static uint32_t currentInodeNum = 0;
 
-static char name[256];
+static char name[NAME_LEN];
 static uint32_t filePos;
 
 uint32_t getIndirect(uint32_t address, uint32_t index) {
@@ -59,8 +61,7 @@ void getBlockData(uint32_t offset, void *data, uint16_t size) {
             if (index < TIN_LEN) {
                blockAddr = getTIndirect(currentInode.i_block[EXT2_TIND_BLOCK], index);
             } else {
-               fprintf(stderr, "ERROR: too large of offset\n");
-               exit(0);
+               return;
             }
          }
       }
@@ -109,8 +110,10 @@ void getFile(uint8_t ndx) {
 
       if (inodeIsFile(nextInode)) {
          if (ndx-- == 0) {
+            getInode(EXT2_ROOT_INO);
             getBlockData(offset + 6, &nameLen, 2);
             getBlockData(offset + 8, name, nameLen);
+            getInode(nextInode);
             name[nameLen] = 0;
             filePos = WAV_HEADER;
             return;
@@ -167,6 +170,6 @@ uint8_t getNumFiles() {
 }
 
 void ext2_init() {
-   memset(name, 0, 256);
+   memset(name, 0, NAME_LEN);
 }
 
