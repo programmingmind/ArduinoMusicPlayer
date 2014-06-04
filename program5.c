@@ -8,7 +8,8 @@
 #include "SdReader.h"
 #include "synchro.h"
 
-uint16_t writeNdx, readNdx;
+uint16_t writeNdx;
+uint8_t readNdx;
 uint8_t buffers[2][256];
 mutex_t mutexes[2];
 
@@ -37,12 +38,11 @@ void reader() {
    uint8_t buffer;
 
    while (1) {
-      buffer = (readNdx >> 8) & 1;
+      buffer = readNdx++ & 1;
 
       mutex_lock(&mutexes[buffer]);
       
       getFileChunk(buffers[buffer]);
-      readNdx += 256;
       
       mutex_unlock(&mutexes[buffer]);
    }
@@ -54,7 +54,7 @@ void printer() {
    while (1) {
       mutex_lock(&mutexes[0]);
 
-      while (byte_available()) {
+      if (byte_available()) {
          input = read_byte();
 
          if (input == 'n') {
@@ -149,7 +149,7 @@ int main(void) {
    mutex_init(&mutexes[1]);
 
    readNdx = 0;
-   writeNdx = 256;
+   writeNdx = 0;
 
    //Create threads
    // create_thread(writer, NULL, 16);
