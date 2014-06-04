@@ -9,7 +9,7 @@ void start_system_timer() {
 
    //22KHz settings
    TCCR0B |= _BV(CS01) | _BV(CS01); //slowest prescalar /1024
-   OCR0A = 90; 
+   OCR0A = 180; 
 
    //start timer 1 to generate interrupt every 1 second
    OCR1A = 15625;
