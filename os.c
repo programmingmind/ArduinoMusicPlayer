@@ -3,12 +3,13 @@
 
 //Get the the next "Ready" thread - Round robin
 uint8_t get_next_thread(void) {
-   uint8_t id = (sysInfo.curId + 1) % sysInfo.numThreads;
+   uint8_t id;
 
-   while (sysInfo.threads[id].state != THREAD_READY)
-      id = (id + 1) % sysInfo.numThreads;
+   for (id = 1; id < sysInfo.numThreads; id++)
+      if (sysInfo.threads[id].state == THREAD_READY)
+         return id;
 
-   return id;
+   return 0;
 }
 
 //This interrupt routine is automatically run every 10 milliseconds
@@ -31,17 +32,15 @@ ISR(TIMER0_COMPA_vect) {
                  "r25", "r26", "r27", "r30", "r31");
 
    //Decrement sleep timer and check for any expired ones
-   for (i = 0; i < MAX_THREADS; i++) {
+   for (i = 0; i < sysInfo.numThreads; i++) {
       if (sysInfo.threads[i].state == THREAD_SLEEPING) {
-         sysInfo.threads[i].sleep--;
-         if (sysInfo.threads[i].sleep <= 0)
+         if (--sysInfo.threads[i].sleep == 0)
             sysInfo.threads[i].state = THREAD_READY;
       }
    }
 
    //Get the thread id of the next thread to run
    sysInfo.threads[oldId].state = THREAD_READY;
-   // sysInfo.curId = 1; // get_next_thread(); always start at 0 for priority
    sysInfo.curId = get_next_thread();
    sysInfo.threads[sysInfo.curId].state = THREAD_RUNNING;
    sysInfo.threads[sysInfo.curId].sched_count++;
@@ -215,6 +214,7 @@ void create_thread(uint16_t address, void *args, uint16_t stack_size) {
 }
 
 void thread_sleep(uint16_t ticks) {
+   cli();
    uint8_t oldId = sysInfo.curId;
    regs_context_switch *intr;
 
@@ -228,4 +228,5 @@ void thread_sleep(uint16_t ticks) {
    sysInfo.threads[sysInfo.curId].state = THREAD_RUNNING;
    context_switch(&sysInfo.threads[sysInfo.curId].tp,
     &sysInfo.threads[oldId].tp);
+   sei();
 }

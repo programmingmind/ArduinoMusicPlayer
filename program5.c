@@ -52,6 +52,8 @@ void printer() {
    uint8_t input, i;
 
    while (1) {
+      thread_sleep(20);
+
       mutex_lock(&mutexes[0]);
 
       if (byte_available()) {
@@ -129,6 +131,17 @@ void printer() {
    }
 }
 
+void print2() {
+   uint16_t test = 0;
+   while (1) {
+      mutex_lock(&mutexes[0]);
+      set_cursor(10, 0);
+      print_int32(test++);
+      mutex_unlock(&mutexes[0]);
+      thread_sleep(200);
+   }
+}
+
 int main(void) {
    uint8_t sd_card_status;
 
@@ -155,17 +168,13 @@ int main(void) {
    // create_thread(writer, NULL, 16);
    // create_thread(reader, NULL, 256);
    create_thread(printer, NULL, 32);
+   create_thread(print2, NULL, 32);
    os_start();
    sei();
 
    uint32_t test = 0;
    //Idle infinite loop
-   while (1) {
-      mutex_lock(&mutexes[0]);
-      set_cursor(10, 0);
-      print_int32(test++);
-      mutex_unlock(&mutexes[0]);
-   }
+   while (1) ;
    
    return 0;
 }
