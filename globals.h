@@ -12,8 +12,6 @@
 #define CYAN 36
 #define WHITE 37
 
-#define WAV_HEADER 0
-
 #define SAMPLE_RATE 11000
 
 #include <avr/io.h>

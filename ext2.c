@@ -12,6 +12,8 @@ static uint32_t currentInodeNum = 0;
 static char name[NAME_LEN];
 static uint32_t filePos;
 
+static uint32_t fileOffsets[MAX_FILES];
+
 uint32_t getIndirect(uint32_t address, uint32_t index) {
    address *= 1024;
    address += index * 4;
@@ -104,30 +106,19 @@ uint8_t inodeIsFile(uint32_t inode) {
 }
 
 void getFile(uint8_t ndx) {
+   uint32_t nextInode;
+   uint16_t nameLen;
+
    getInode(EXT2_ROOT_INO);
 
-   uint32_t offset = 0, nextInode;
-   uint16_t recLen, nameLen;
+   getBlockData(fileOffsets[ndx], &nextInode, 4);
+   getBlockData(fileOffsets[ndx] + 6, &nameLen, 2);
+   getBlockData(fileOffsets[ndx] + 8, name, nameLen);
 
-   while (offset < currentInode.i_size) {
-      getBlockData(offset, &nextInode, 4);
-      getBlockData(offset + 4, &recLen, 2);
+   name[nameLen] = 0;
+   filePos = 0;
 
-      if (inodeIsFile(nextInode)) {
-         if (ndx-- == 0) {
-            getInode(EXT2_ROOT_INO);
-            getBlockData(offset + 6, &nameLen, 2);
-            getBlockData(offset + 8, name, nameLen);
-            getInode(nextInode);
-            name[nameLen] = 0;
-            filePos = WAV_HEADER;
-            return;
-         }
-      }
-
-      getInode(EXT2_ROOT_INO);
-      offset += recLen;
-   }
+   getInode(nextInode);
 }
 
 char *getCurrentName() {
@@ -163,7 +154,7 @@ uint8_t getNumFiles() {
       getBlockData(offset + 4, &recLen, 2);
 
       if (inodeIsFile(nextInode))
-         numFiles++;
+         fileOffsets[numFiles++] = offset;
 
       getInode(EXT2_ROOT_INO);
       offset += recLen;

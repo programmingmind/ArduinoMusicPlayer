@@ -37,9 +37,9 @@ void reader() {
       buffer ^= 1;
 
       mutex_lock(&mutexes[buffer]);
-      
+
       getFileChunk(buffers[buffer]);
-      
+
       mutex_unlock(&mutexes[buffer]);
    }
 }
@@ -53,21 +53,28 @@ void printer() {
    while (1) {
       if (byte_available()) {
          input = read_byte();
+         i = 0;
 
          if (input == 'n') {
-            currentFile = (currentFile + 1) % numFiles;
-            getFile(currentFile);
-            total = getCurrentSize() / SAMPLE_RATE;
+            //currentFile = (currentFile + 1) % numFiles;
+            i = 1;
          } else if (input == 'p') {
-            currentFile = currentFile ? currentFile - 1 : numFiles - 1;
+            //currentFile = currentFile ? currentFile - 1 : numFiles - 1;
+            i = 1;
+         }
+
+         if (i) {
+            mutex_lock(&mutexes[0]);
+            mutex_lock(&mutexes[1]);
+
             getFile(currentFile);
+
+            mutex_unlock(&mutexes[0]);
+            mutex_unlock(&mutexes[1]);
+
             total = getCurrentSize() / SAMPLE_RATE;
          }
       }
-      // show stats
-      // name = getCurrentName();
-      // length = (getCurrentSize() - WAV_HEADER) / 8;
-      // currentTime = (getCurrentPos() - WAV_HEADER) / 8;
 
       set_color(YELLOW);
 
@@ -119,6 +126,13 @@ void printer() {
          // print_hex(((uint16_t)sysInfo.threads[i].intr_pcl
          //  + ((uint16_t)sysInfo.threads[i].intr_pch << 8)) * 2);
       }
+
+      set_cursor(11,0);
+      print_string("File: ");
+      print_int(currentFile + 1);
+      print_string(" / ");
+      print_int(numFiles);
+      print_string("  ");
 
       set_cursor(12, 0);
       for (i = 0; i < NAME_LEN; i++)
