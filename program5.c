@@ -61,7 +61,7 @@ void printer() {
          } else if (input == 'p') {
             currentFile = currentFile ? currentFile - 1 : numFiles - 1;
             getFile(currentFile);
-            total = (getCurrentSize() >> 3) / SAMPLE_RATE;
+            total = getCurrentSize() / SAMPLE_RATE;
          }
       }
       // show stats
@@ -77,6 +77,7 @@ void printer() {
       set_cursor(2, 0);
       print_string("Interrupts/second: ");
       print_int32(sysInfo.numIntr / sysInfo.runtime);
+      print_string("     ");
       set_cursor(3, 0);
       print_string("Number of Threads: ");
       print_int(sysInfo.numThreads);
