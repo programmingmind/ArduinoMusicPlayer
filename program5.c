@@ -48,7 +48,7 @@ void printer() {
    uint8_t input, i;
    uint16_t curr, total;
 
-   total = (getCurrentSize() >> 3) / SAMPLE_RATE;
+   total = getCurrentSize() / SAMPLE_RATE;
 
    while (1) {
       if (byte_available()) {
@@ -57,7 +57,7 @@ void printer() {
          if (input == 'n') {
             currentFile = (currentFile + 1) % numFiles;
             getFile(currentFile);
-            total = (getCurrentSize() >> 3) / SAMPLE_RATE;
+            total = getCurrentSize() / SAMPLE_RATE;
          } else if (input == 'p') {
             currentFile = currentFile ? currentFile - 1 : numFiles - 1;
             getFile(currentFile);
@@ -126,7 +126,7 @@ void printer() {
       set_cursor(12, 0);
       print_string(getCurrentName());
 
-      curr = (getCurrentPos() >> 3) / SAMPLE_RATE;
+      curr = getCurrentPos() / SAMPLE_RATE;
 
       set_cursor(13, 0);
       print_int(curr / 60);
