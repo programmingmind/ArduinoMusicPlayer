@@ -108,21 +108,6 @@ void sem_init(semaphore_t *s, int8_t value) {
    memset(s->list, 0, MAX_THREADS);
    s->front = -1;
    s->end = -1;
-
-   mutex.value = 1;
-   memset(mutex.list, 0, MAX_THREADS);
-   mutex.front = -1;
-   mutex.end = -1;
-
-   full.value = 0;
-   memset(full.list, 0, MAX_THREADS);
-   full.front = -1;
-   full.end = -1;
-
-   empty.value = BUFFER_SIZE;
-   memset(empty.list, 0, MAX_THREADS);
-   empty.front = -1;
-   empty.end = -1;
 }
 
 void sem_wait(semaphore_t *s) {

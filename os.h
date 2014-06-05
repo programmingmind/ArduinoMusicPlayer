@@ -5,8 +5,7 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#define BUFFER_SIZE 10
-#define MAX_THREADS 8
+#define MAX_THREADS 4
 
 //This structure defines the register order pushed to the stack on a
 //system context switch.
@@ -108,10 +107,5 @@ void start_audio_pwm();
 
 //Global variables
 volatile system_t sysInfo;              //OS information
-volatile uint8_t buffer[BUFFER_SIZE];   //Buffer holding produced items
-volatile uint8_t in;
-volatile uint8_t out;
-volatile uint16_t produceRate;
-volatile uint16_t consumeRate;
 
 #endif

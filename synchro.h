@@ -28,10 +28,4 @@ void sem_signal(semaphore_t *s);
 void sem_signal_swap(semaphore_t *s);
 void yield();
 
-volatile semaphore_t s;
-volatile mutex_t m;
-volatile semaphore_t mutex;
-volatile semaphore_t empty;
-volatile semaphore_t full;
-
 #endif

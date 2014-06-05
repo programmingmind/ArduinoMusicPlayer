@@ -16,8 +16,8 @@
 
  #include <inttypes.h>
 
- #define NAME_LEN 80
- #define MAX_FILES 16
+ #define NAME_LEN 75
+ #define MAX_FILES 13
 
 /*
  * Special inode numbers
