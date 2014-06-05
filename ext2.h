@@ -16,7 +16,7 @@
 
  #include <inttypes.h>
 
- #define NAME_LEN 64
+ #define NAME_LEN 80
  #define MAX_FILES 16
 
 /*
