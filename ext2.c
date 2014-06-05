@@ -33,14 +33,7 @@ uint32_t getTIndirect(uint32_t address, uint32_t index) {
    return getDIndirect(address, index % (DIN_LEN));
 }
 
-void getBlockData(uint32_t offset, void *data, uint16_t size) {
-   if ((offset % 1024) + size > 1024) {
-      uint16_t pre = 1024 - (offset % 1024);
-      getBlockData(offset, data, pre);
-      getBlockData(offset + pre, (void *) (((char *) data) + pre), size - pre);
-      return;
-   }
-
+uint32_t getBlockAddr(uint32_t offset) {
    uint32_t index = offset / 1024;
    uint32_t blockAddr;
 
@@ -59,7 +52,7 @@ void getBlockData(uint32_t offset, void *data, uint16_t size) {
             if (index < TIN_LEN) {
                blockAddr = getTIndirect(currentInode.i_block[EXT2_TIND_BLOCK], index);
             } else {
-               return;
+               return 0;
             }
          }
       }
@@ -67,6 +60,20 @@ void getBlockData(uint32_t offset, void *data, uint16_t size) {
 
    blockAddr *= 1024;
    blockAddr += offset % 1024;
+
+   return blockAddr;
+}
+
+void getBlockData(uint32_t offset, void *data, uint16_t size) {
+   if ((offset % 1024) + size > 1024) {
+      uint16_t pre = 1024 - (offset % 1024);
+      getBlockData(offset, data, pre);
+      getBlockData(offset + pre, (void *) (((char *) data) + pre), size - pre);
+      return;
+   }
+
+   uint32_t blockAddr = getBlockAddr(offset);
+   
    if ((blockAddr % 512) + size > 512) {
       uint16_t pre = 512 - (blockAddr % 512);
       sdReadData(blockAddr / 512, blockAddr % 512, data, pre);
@@ -135,15 +142,13 @@ uint32_t getCurrentSize() {
    return currentInode.i_size;
 }
 
-void getFileChunk(uint8_t *buffer) {
-   uint16_t read = 256;
-   if (filePos + read > currentInode.i_size) {
-      read = currentInode.i_size - filePos;
+void getFileChunk(uint8_t *buffer) {   
+   uint32_t addr = getBlockAddr(filePos);
+   sdReadData(addr / 512, addr % 512, buffer, 256);
+
+   if ((filePos += 256) > currentInode.i_size) {
+      filePos = 0;
    }
-
-   getBlockData(filePos, buffer, read);
-
-   filePos = read == 256 ? (filePos + read) : WAV_HEADER;
 }
 
 uint8_t getNumFiles() {
