@@ -56,16 +56,18 @@ void printer() {
          i = 0;
 
          if (input == 'n') {
-            //currentFile = (currentFile + 1) % numFiles;
+            currentFile = (currentFile + 1) % numFiles;
             i = 1;
          } else if (input == 'p') {
-            //currentFile = currentFile ? currentFile - 1 : numFiles - 1;
+            currentFile = currentFile ? currentFile - 1 : numFiles - 1;
             i = 1;
          }
 
          if (i) {
             mutex_lock(&mutexes[0]);
             mutex_lock(&mutexes[1]);
+
+            clear_screen();
 
             getFile(currentFile);
 
