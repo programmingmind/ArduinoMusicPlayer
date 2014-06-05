@@ -17,7 +17,7 @@ ISR(TIMER0_COMPA_vect) {
    volatile uint8_t oldId = sysInfo.curId, i;
    volatile regs_interrupt *intr;
 
-   sysInfo.intrSec = sysInfo.numIntr++ / sysInfo.runtime;
+   sysInfo.numIntr++;
 
    //Save interrupted PC (4 locals, 1 pad byte, 2 arguments)
    intr = (regs_interrupt *)(sysInfo.threads[oldId].tp +

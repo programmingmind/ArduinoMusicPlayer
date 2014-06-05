@@ -76,7 +76,7 @@ void printer() {
       print_int32(sysInfo.runtime);
       set_cursor(2, 0);
       print_string("Interrupts/second: ");
-      print_int32(sysInfo.intrSec);
+      print_int32(sysInfo.numIntr / sysInfo.runtime);
       set_cursor(3, 0);
       print_string("Number of Threads: ");
       print_int(sysInfo.numThreads);
